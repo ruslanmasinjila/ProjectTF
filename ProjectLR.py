@@ -1,5 +1,5 @@
 ##########################################################################################
-# ProjectTF (TREND FOLLOWER)
+# ProjectLR (LINEAR REGRESSION)
 # AUTHOR: RUSLAN MASINJILA
 ##########################################################################################
 
@@ -52,8 +52,9 @@ strTimeframe   = ['M1','M2','M3','M4','M5','M6','M10','M12','M15','M20','M30','H
 
 
 num_candles         = 100
-offset              = 1
+offset              = 0
 sleep_time          = 5
+min_length          = 2
 
 ##########################################################################################
 
@@ -119,18 +120,11 @@ def get_signals():
             
 
 
-            third_sequence_indices  = sorted_merged_list[-1]
-            second_sequence_indices = sorted_merged_list[-2]
-            first_sequence_indices  = sorted_merged_list[-3]
+            second_sequence_indices  = sorted_merged_list[-1]
+            first_sequence_indices = sorted_merged_list[-2]
             
-            length_third_sequence   = len(third_sequence_indices)
-            length_second_sequence  = len(second_sequence_indices)
-            length_first_sequence   = len(first_sequence_indices)
-            
-            third_sequence_head_open   = rates_frame['open'].iloc[third_sequence_indices[-1]]
-            third_sequence_head_close  = rates_frame['close'].iloc[third_sequence_indices[-1]]
-            third_sequence_is_green = ( third_sequence_head_close -third_sequence_head_open ) > 0
-            third_sequence_is_red   = ( third_sequence_head_close - third_sequence_head_open ) < 0
+            length_second_sequence   = len(second_sequence_indices)
+            length_first_sequence  = len(first_sequence_indices)
             
             second_sequence_head_open   = rates_frame['open'].iloc[second_sequence_indices[-1]]
             second_sequence_head_close  = rates_frame['close'].iloc[second_sequence_indices[-1]]
@@ -142,45 +136,40 @@ def get_signals():
             first_sequence_is_green = ( first_sequence_head_close -first_sequence_head_open ) > 0
             first_sequence_is_red   = ( first_sequence_head_close - first_sequence_head_open ) < 0
 
-            third_sequence_highest_open = rates_frame['open'].iloc[third_sequence_indices].max()
-            third_sequence_lowest_open  = rates_frame['open'].iloc[third_sequence_indices].min()
-            third_sequence_highest_high  = rates_frame['high'].iloc[third_sequence_indices].max()
-            third_sequence_lowest_low    = rates_frame['low'].iloc[third_sequence_indices].min()
-            third_sequence_highest_close = rates_frame['close'].iloc[third_sequence_indices].max()
-            third_sequence_lowest_close      = rates_frame['close'].iloc[third_sequence_indices].min()
-
-            third_sequence_highest_open_idx  = rates_frame['open'].iloc[third_sequence_indices].idxmax()
-            third_sequence_lowest_open_idx   = rates_frame['open'].iloc[third_sequence_indices].idxmin()
-            
-                                                     
             second_sequence_highest_open = rates_frame['open'].iloc[second_sequence_indices].max()
             second_sequence_lowest_open  = rates_frame['open'].iloc[second_sequence_indices].min()
             second_sequence_highest_high  = rates_frame['high'].iloc[second_sequence_indices].max()
             second_sequence_lowest_low    = rates_frame['low'].iloc[second_sequence_indices].min()
             second_sequence_highest_close = rates_frame['close'].iloc[second_sequence_indices].max()
-            second_sequence_lowest_close  = rates_frame['close'].iloc[second_sequence_indices].min()
+            second_sequence_lowest_close      = rates_frame['close'].iloc[second_sequence_indices].min()
+
+            second_sequence_highest_open_idx  = rates_frame['open'].iloc[second_sequence_indices].idxmax()
+            second_sequence_lowest_open_idx   = rates_frame['open'].iloc[second_sequence_indices].idxmin()
             
+                                                     
             first_sequence_highest_open = rates_frame['open'].iloc[first_sequence_indices].max()
             first_sequence_lowest_open  = rates_frame['open'].iloc[first_sequence_indices].min()
             first_sequence_highest_high  = rates_frame['high'].iloc[first_sequence_indices].max()
             first_sequence_lowest_low    = rates_frame['low'].iloc[first_sequence_indices].min()
             first_sequence_highest_close = rates_frame['close'].iloc[first_sequence_indices].max()
-            first_sequence_lowest_close  = rates_frame['close'].iloc[first_sequence_indices].min()           
-
-                             
+            first_sequence_lowest_close  = rates_frame['close'].iloc[first_sequence_indices].min()
+                      
             ##########################################################################################
+            if(first_sequence_is_green and second_sequence_is_red):
+                if(length_first_sequence == length_second_sequence or length_first_sequence == (length_second_sequence+1)):
+                    if(first_sequence_lowest_low < second_sequence_lowest_low):
+                        if(length_first_sequence >= min_length):
+                            signal = 'BUY '
+                            beep = 1    
+                    
             
-            if(first_sequence_is_green and second_sequence_is_red and third_sequence_is_green):
-                if(third_sequence_lowest_open < first_sequence_lowest_low):
-                    if(third_sequence_highest_close > first_sequence_highest_high):
-                        signal = 'BUY '
-                        beep = 1               
+            if(first_sequence_is_red and second_sequence_is_green):
+                if(length_first_sequence == length_second_sequence or length_first_sequence == (length_second_sequence+1)):
+                    if(first_sequence_highest_high > second_sequence_highest_high):
+                        if(length_first_sequence >= min_length):
+                            signal = 'SELL'
+                            beep = 1
 
-            if(first_sequence_is_red and second_sequence_is_green and third_sequence_is_red):
-                if(third_sequence_highest_open > first_sequence_highest_high):
-                    if(third_sequence_lowest_close < first_sequence_lowest_low):
-                        signal = 'SELL'
-                        beep = 1  
                                             
             ##########################################################################################
             
