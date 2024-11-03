@@ -156,14 +156,14 @@ def get_signals():
                       
             ##########################################################################################
             if(first_sequence_is_green and second_sequence_is_red):
-                if(length_first_sequence == length_second_sequence):
+                if(length_first_sequence == length_second_sequence or length_first_sequence == (length_second_sequence+1)):
                     if(length_first_sequence >= min_length):
                         signal = 'BUY '
                         beep = 1    
                     
             
             if(first_sequence_is_red and second_sequence_is_green):
-                if(length_first_sequence == length_second_sequence):
+                if(length_first_sequence == length_second_sequence or length_first_sequence == (length_second_sequence+1)):
                     if(length_first_sequence >= min_length):
                         signal = 'SELL'
                         beep = 1
